@@ -88,9 +88,64 @@ public class MyController extends HttpServlet {
 			System.out.println("login.do 요청을 했습니다. ");
 			// 로그인을 처리하는 코드 블락 
 			
+			//1. client form 에서 넘어온 변수 : id , password
+			String id = request.getParameter("id"); 
+			String password = request.getParameter("password"); 
+			
+			//2. DTO에 저장 
+			UsersDTO dto = new UsersDTO(); 
+			dto.setId(id); 
+			dto.setPassword(password); 
+			
+			//3. DAO 에 메소드 호출 
+			UsersDAO dao = new UsersDAO(); 
+			
+			
+			//users : null 경우 <== 해당 ID와 Password가 일치 하지 않는 경우 
+			//users : null 아닐경우	<==  해당 ID와 Password가 DB에 존재함.     <=== session 에 변수에 정보값을 입력 
+			UsersDTO users = dao.login(dto); 
+			
+			if ( users == null) {	//인증 실패 
+				System.out.println("인증 실패 했습니다.");
+				
+				response.sendRedirect("LoginForm.jsp"); 
+				
+			}else {					//인증 성공 
+				System.out.println("인증 성공 했습니다.");
+				
+				// Session 변수를 생성하고 변수에 ID값을 담아서 클라이언트 view 페이지로 전송 
+				HttpSession session = request.getSession(); 
+				System.out.println(session);
+				
+				//세션에 변수에 dto의 값을 할당. 
+				//     id  <== DB에서 가져온 ID 
+				//     role <== DB에서 가져온 ROLE 
+				session.setAttribute("id", users.getId()); 
+				session.setAttribute("role", users.getRole()); 
+				
+				System.out.println("===세션 변수에 담기는 값=====");
+				System.out.println(users.getId());
+				System.out.println(users.getRole());
+				
+				response.sendRedirect("LoginForm.jsp"); 
+				
+			}
+					
 		} else if (path.equals("/logout.do")) {
 			System.out.println("logout.do 요청을 했습니다. ");
 			//로그아웃 요청을 처리하는 코드 블락 
+			
+			// 1. 세션의 모든 변수와 값을 모두 삭제 
+			HttpSession session = request.getSession(); 
+			
+			//접속한 클라이언트에 session에 저장된 모든 변수의 값을 삭제 
+			session.invalidate(); 
+			
+			// 2. 세션 삭제후 이동 페이지 
+			response.sendRedirect("/JSP_Study_MVC_M2"); 
+			
+			
+			
 			
 		} else if (path.equals("/insertBoard.do")) {
 			System.out.println("insertBoard.do 요청을 했습니다. ");
@@ -251,12 +306,27 @@ public class MyController extends HttpServlet {
 			
 			// 4. view 페이지로 이동 
 			
+			response.sendRedirect("getBoardList.do"); 			
+			
+		} else if (path.equals("/deleteBoard.do")) {
+			System.out.println("/deleteBoard.do 요청 성공 ");
+			String seq = request.getParameter("seq"); 
+			String write = request.getParameter("write"); 
+			
+			//System.out.println("seq : " + seq );
+			//System.out.println("write : " + write );
+			
+			// 1. 변수를 DTO에 저장 
+			BoardDTO dto = new BoardDTO(); 
+			dto.setSeq(Integer.parseInt(seq)); 
+			dto.setWrite(write); 
+			
+			//2. DAO의 메소드 호출  
+			BoardDAO dao = new BoardDAO(); 
+			dao.deleteBoard(dto); 
+			
+			//3. view 페이지로 이동 
 			response.sendRedirect("getBoardList.do"); 
-			
-			
-			
-			
-			
 			
 			
 		}

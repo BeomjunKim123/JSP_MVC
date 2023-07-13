@@ -71,7 +71,9 @@
 	</table>
 	
 	<br> <br> 
-	<a href = "insertBoard.jsp"> 새 글 등록 </a>
+	<a href = "insertBoard.jsp"> 새 글 등록 </a> <p/>
+	<a href = "/JSP_Study_MVC_M2"> 처음으로 이동</a>
+	
 
 	</div>
 </body>

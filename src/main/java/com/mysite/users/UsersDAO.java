@@ -21,7 +21,7 @@ public class UsersDAO {
 	private final String USERS_DELETE = ""; 
 	private final String USERS_GET = ""; 
 	private final String USERS_LIST = "select * from users order by id asc"; 
-	
+	private final String USERS_LOGIN = "select * from users where id = ? and password = ?"; 
 	
 	//1. users 테이블의 값을 넣는 메소드 
 	public void insertUsers(UsersDTO dto) {
@@ -82,4 +82,47 @@ public class UsersDAO {
 		return userList; 
 			
 	}
+	
+	// 로그인 처리 메소드 
+	// USERS_LOGIN = "select * from users where id = ? and password = ?"; 
+	public UsersDTO login(UsersDTO dto) {
+		UsersDTO users = null;  
+		
+		try {
+			conn = JDBCUtil.getConnection(); 
+			pstmt= conn.prepareStatement(USERS_LOGIN); 
+			pstmt.setString(1, dto.getId());
+			pstmt.setString(2, dto.getPassword());
+			
+			rs = pstmt.executeQuery(); 
+			
+			//레코드가 존재할때  : 작동 
+			while ( rs.next()) {
+				
+				users = new UsersDTO(); 
+				
+				users.setId(rs.getString("ID"));
+				users.setName(rs.getNString("NAME"));
+				users.setPassword(rs.getString("PASSWORD"));
+				users.setRole(rs.getString("ROLE"));
+				
+				System.out.println("인증 성공 : DB에 해당 ID와 Password가 존재함 ");
+			}					
+			
+			//rs의 값이 존재하면 : 인증 성공 
+			//rs의 값이 존재하지 않으면 : 인증 실패 
+			System.out.println("로그인 메소드 잘작동 ");
+			
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("로그인 처리시 오류 발생");
+		}finally {
+			JDBCUtil.close(rs, pstmt, conn);
+		}
+			
+		return users; 	
+	}
+	
+	
 }
