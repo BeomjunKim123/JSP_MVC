@@ -12,6 +12,8 @@ import javax.servlet.http.HttpSession;
 
 import com.mysite.board.BoardDAO;
 import com.mysite.board.BoardDTO;
+import com.mysite.products.ProductsDAO;
+import com.mysite.products.ProductsDTO;
 import com.mysite.users.UsersDAO;
 import com.mysite.users.UsersDTO;
 
@@ -211,8 +213,31 @@ public class MyController extends HttpServlet {
 			// 글 목록 
 			System.out.println("getBoardList.do 를 요청 했습니다. ");
 			
+			//클라이언트에서 받은 검색어를 DTO에 저장후 메소드 호출 
+			String searchCondition = request.getParameter("searchCondition"); 
+			String searchKeyword = request.getParameter("searchKeyword"); 
+			
+			
+			// Null을 처리 해야 함.   : 주의 : URL에서 요청을 했을때 NULL이 적용됨 : getBoardList.do
+			if ( searchCondition == null) {
+				searchCondition = "TITLE"; 	
+			} 
+			if ( searchKeyword == null ) {
+				searchKeyword = ""; 
+			}
+			
+			
+			System.out.println("====검색어 출력 =====");
+			System.out.println(searchCondition);
+			System.out.println(searchKeyword);
+			
+			
 			//1. DTO 객체 생성 
 			BoardDTO dto = new BoardDTO(); 
+			
+			dto.setSearchCondition(searchCondition); 
+			dto.setSearchKeyword(searchKeyword); 
+			
 			
 			//2. DAO의 getBoardList(dto) 
 			BoardDAO dao = new BoardDAO(); 
@@ -329,7 +354,55 @@ public class MyController extends HttpServlet {
 			response.sendRedirect("getBoardList.do"); 
 			
 			
+		}else if (path.equals("/insertProducts.do")) {
+			System.out.println("/insertProducts.do 요청 성공");
+			
+			String p_code = request.getParameter("p_code"); 
+			String p_name = request.getParameter("p_name"); 
+			String p_kind = request.getParameter("p_kind"); 
+			String p_price = request.getParameter("p_price"); 
+			String p_content = request.getParameter("p_content"); 
+			String p_quantity = request.getParameter("p_quantity"); 
+			
+			ProductsDTO products = new ProductsDTO(); 
+			
+			products.setP_code(Integer.parseInt(p_code)); 
+			products.setP_name(p_name); 
+			products.setP_kind(p_kind); 
+			products.setP_price(p_price); 
+			products.setP_content(p_content); 
+			products.setP_quantity(p_quantity); 
+			
+			//dao 메소드 호출 
+			ProductsDAO dao = new ProductsDAO (); 
+			dao.insertProducts(products); 
+			
+			//view페이지 이동 
+			response.sendRedirect("getProductsList.do"); 
+			
+			
+			
+		}else if (path.equals("/getProductsList.do")) {
+			System.out.println("/insertProducts.do 요청 성공");
+			
+			//1. DTO 생성 
+			ProductsDTO dto = new ProductsDTO(); 
+						
+			//2. DAO 메소드 호출 
+			ProductsDAO dao = new ProductsDAO(); 
+			
+			List<ProductsDTO> productsList = dao.getProductsList(dto); 
+			
+			//3. Session 변수에 저장후 출력 
+			HttpSession session = request.getSession();
+			session.setAttribute("productsList", productsList);
+			
+			//4. view 페이지로 이동 
+			response.sendRedirect("getProductsList.jsp");
+			
 		}
+		
+		
 			
 		
 		
